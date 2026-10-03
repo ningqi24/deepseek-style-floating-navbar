@@ -6,7 +6,7 @@
 <p>
   <img alt="零依赖" src="https://img.shields.io/badge/dependencies-0-4d6bfe">
   <img alt="无需构建" src="https://img.shields.io/badge/build-none-4d6bfe">
-  <img alt="体积" src="https://img.shields.io/badge/size-~9KB%20unminified-4d6bfe">
+  <img alt="体积" src="https://img.shields.io/badge/size-5.5KB%20gzipped-4d6bfe">
   <img alt="许可" src="https://img.shields.io/badge/license-MIT-4d6bfe">
 </p>
 
