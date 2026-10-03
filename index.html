@@ -4,29 +4,61 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>悬浮玻璃胶囊导航栏 · 滚动时弹簧收窄 | glass-navbar</title>
-<meta name="description" content="零依赖的悬浮玻璃胶囊导航栏：滚动时横向内缩、纵向变薄，磨砂玻璃淡入。宽度与内边距用弹簧积分驱动，手感连续。纯 HTML + CSS + JS，不需要构建。">
+<meta name="description" content="零依赖的悬浮玻璃胶囊导航栏：滚动时横向内缩、纵向变薄，磨砂玻璃淡入。尺寸变化由弹簧积分驱动，纯 HTML + CSS + JS。">
+<meta name="theme-color" content="#f7f7f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://github.com/ningqi24/deepseek-style-floating-navbar">
+<meta property="og:title" content="悬浮玻璃胶囊导航栏 · glass-navbar">
+<meta property="og:description" content="滚动时横向内缩、纵向变薄，磨砂玻璃淡入。零依赖，两个文件。">
+<meta property="og:image" content="https://ningqi24.github.io/deepseek-style-floating-navbar/assets/demo-light.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%234d6bfe'/><rect x='7' y='13' width='18' height='6' rx='3' fill='%23fff'/></svg>">
 <link rel="stylesheet" href="glass-navbar.css">
 <link rel="stylesheet" href="demo.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('gnav-demo-theme');
+      var lang = localStorage.getItem('gnav-demo-lang');
+      if (!lang) lang = (navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+      document.documentElement.setAttribute('data-lang', lang === 'en' ? 'en' : 'zh');
+      if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 
-<!-- ===== 组件标记：只需要 .gnav > .gnav__bar > .gnav__inner 这层结构 ===== -->
+<!-- ===== 组件本体：只需要 .gnav > .gnav__bar > .gnav__inner 这层结构 ===== -->
 <header class="gnav" id="gnav" data-gnav-threshold="80">
   <div class="gnav__bar">
     <div class="gnav__inner">
-      <a class="demo-brand" href="#top"><span class="dot" aria-hidden="true"></span>Float</a>
+      <a class="brand" href="#top">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span>glass-navbar</span>
+      </a>
 
-      <nav class="demo-nav" id="demo-nav" aria-label="主导航">
-        <a href="#knobs">实时调节</a>
-        <a href="#usage">怎么用</a>
-        <a href="#why">为什么用弹簧</a>
-        <a href="#api">参数表</a>
+      <nav class="topnav" id="topnav" aria-label="Sections">
+        <a href="#quickstart" data-i18n="nav.quickstart">快速开始</a>
+        <a href="#why" data-i18n="nav.why">原理</a>
+        <a href="#knobs" data-i18n="nav.knobs">实时调节</a>
+        <a href="#params" data-i18n="nav.params">参数</a>
+        <a href="#api" data-i18n="nav.api">API</a>
       </nav>
 
-      <div class="demo-actions">
-        <button type="button" class="demo-btn" id="theme-toggle">深色</button>
-        <a class="demo-btn demo-btn--dark" href="#usage">开始使用</a>
-        <button type="button" class="demo-btn demo-burger" id="burger" aria-label="菜单" aria-expanded="false">☰</button>
+      <div class="topactions">
+        <div class="lang" role="group" data-i18n-aria="aria.lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <button type="button" class="ibtn" id="theme-toggle" data-i18n-aria="aria.theme">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 3.6v2M12 18.4v2M3.6 12h2M18.4 12h2M6.1 6.1l1.4 1.4M16.5 16.5l1.4 1.4M17.9 6.1l-1.4 1.4M7.5 16.5l-1.4 1.4" stroke-width="1.6" stroke-linecap="round" fill="none" stroke="currentColor"/></svg>
+        </button>
+        <a class="ibtn" id="gh-link" href="https://github.com/ningqi24/deepseek-style-floating-navbar" target="_blank" rel="noopener" data-i18n-aria="aria.github"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button type="button" class="ibtn burger" id="burger" aria-expanded="false" data-i18n-aria="aria.menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -35,190 +67,173 @@
 <main id="top">
   <section class="hero">
     <div class="wrap">
-      <h1>悬浮玻璃胶囊导航栏</h1>
-      <p class="lede">
-        未滚动时贴边、全宽、完全透明；滚过阈值后<strong>横向内缩 + 纵向变薄</strong>，
-        磨砂玻璃淡入浮起来 —— 像一颗浮起的液态玻璃药丸。
-      </p>
-      <p class="hint">↓ 向下滚动，看胶囊怎么收窄 · 也可以来回滚，感受弹簧的连续性</p>
-      <div class="badges">
-        <span>zero dependencies</span>
-        <span>no build step</span>
-        <span>2 files</span>
-        <span>spring physics</span>
-        <span>prefers-reduced-motion</span>
-        <span>dark mode</span>
+      <h1 data-i18n="hero.title">悬浮玻璃胶囊导航栏</h1>
+      <p class="hero__sub" data-i18n="hero.sub">滚动时横向内缩、纵向变薄，磨砂玻璃淡入。两个文件，零依赖，无构建。</p>
+
+      <div class="hero__actions">
+        <a class="btn btn--dark" href="https://github.com/ningqi24/deepseek-style-floating-navbar" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span data-i18n="hero.github">在 GitHub 上查看</span></a>
+        <button type="button" class="btn" id="copy-install"><span data-i18n="hero.copy">复制引入代码</span></button>
       </div>
+
+      <pre class="snippet" id="install-snippet">&lt;link rel="stylesheet" href="glass-navbar.css"&gt;
+&lt;script src="glass-navbar.js"&gt;&lt;/script&gt;</pre>
     </div>
   </section>
 
-  <section class="section" id="knobs">
-    <div class="wrap">
-      <h2>实时调节</h2>
-      <p class="sub">拖下面的滑块，页头会立刻变。所有数值都是 CSS 变量，改完把这一段拷走就行。</p>
+  <div class="wrap doc">
+    <aside class="doc__side">
+      <nav aria-label="Contents">
+        <a href="#quickstart" data-i18n="nav.quickstart">快速开始</a>
+        <a href="#why" data-i18n="nav.why">原理</a>
+        <a href="#knobs" data-i18n="nav.knobs">实时调节</a>
+        <a href="#params" data-i18n="nav.params">参数</a>
+        <a href="#api" data-i18n="nav.api">API</a>
+        <a href="#compat" data-i18n="nav.compat">兼容性</a>
+      </nav>
+      <p class="doc__meta">v1.0.0 · MIT</p>
+    </aside>
 
-      <div class="controls">
-        <div class="controls__head">
-          <strong>设计令牌</strong>
-          <span>改完直接在 CSS 里覆盖</span>
-        </div>
-        <div class="controls__grid">
-          <div class="ctl">
-            <div class="ctl__top"><label for="k-inset">--gnav-inset</label><span class="ctl__val">80px</span></div>
-            <input id="k-inset" type="range" min="0" max="200" step="2" value="80" data-var="--gnav-inset">
-            <p class="ctl__note">滚动后左右各内缩多少。相对容器计算，内容多也不会挤。</p>
-          </div>
-          <div class="ctl">
-            <div class="ctl__top"><label for="k-innerh">--gnav-inner-h-on</label><span class="ctl__val">42px</span></div>
-            <input id="k-innerh" type="range" min="34" max="60" step="1" value="42" data-var="--gnav-inner-h-on">
-            <p class="ctl__note">滚动后的胶囊内容高度。调小 = 更「小而美」。</p>
-          </div>
-          <div class="ctl">
-            <div class="ctl__top"><label for="k-pady">--gnav-pad-y-on</label><span class="ctl__val">2px</span></div>
-            <input id="k-pady" type="range" min="0" max="10" step="0.5" value="2" data-var="--gnav-pad-y-on">
-            <p class="ctl__note">滚动后的纵向内边距。</p>
-          </div>
-          <div class="ctl">
-            <div class="ctl__top"><label for="k-blur">--gnav-blur</label><span class="ctl__val">12px</span></div>
-            <input id="k-blur" type="range" min="0" max="30" step="1" value="12" data-var="--gnav-blur">
-            <p class="ctl__note">磨砂玻璃的模糊半径。0 就是纯色背景。</p>
-          </div>
-          <div class="ctl">
-            <div class="ctl__top"><label for="k-surface">--gnav-surface</label><span class="ctl__val">0.45</span></div>
-            <input id="k-surface" type="range" min="0.05" max="0.95" step="0.05" value="0.45" data-var="--gnav-surface" data-unit="alpha">
-            <p class="ctl__note">玻璃底色不透明度（浅色主题）。</p>
-          </div>
-        </div>
-      </div>
-
-      <pre id="snippet"></pre>
-    </div>
-  </section>
-
-  <section class="section section--soft" id="usage">
-    <div class="wrap">
-      <h2>怎么用</h2>
-      <p class="sub">两个文件，零依赖，不需要构建。把结构放进去、把两个文件引进来就完事了。</p>
-
-      <ol class="steps">
-        <li><b>01</b><div><strong>放结构</strong><p>类名固定三层：<code>.gnav &gt; .gnav__bar &gt; .gnav__inner</code>。中间层是胶囊本体，所以它外面的区域不会被挡住点击。</p></div></li>
-        <li><b>02</b><div><strong>引文件</strong><p><code>&lt;link rel="stylesheet" href="glass-navbar.css"&gt;</code> 加 <code>&lt;script src="glass-navbar.js"&gt;&lt;/script&gt;</code>。脚本会自动初始化页面上所有 <code>.gnav</code>。</p></div></li>
-        <li><b>03</b><div><strong>改数值</strong><p>用 CSS 变量覆盖（见 <a href="#api">参数表</a>）。想调多细、多宽，只改 CSS，不用碰 JS。</p></div></li>
-      </ol>
-
-      <pre>&lt;<b>header</b> class="gnav"&gt;
-  &lt;<b>div</b> class="gnav__bar"&gt;
-    &lt;<b>div</b> class="gnav__inner"&gt;
+    <div class="doc__body">
+      <section class="docsec" id="quickstart">
+        <h2 data-i18n="nav.quickstart">快速开始</h2>
+        <pre>&lt;header class="gnav"&gt;
+  &lt;div class="gnav__bar"&gt;
+    &lt;div class="gnav__inner"&gt;
       &lt;!-- 你的 logo / 导航 / 按钮 --&gt;
-    &lt;/<b>div</b>&gt;
-  &lt;/<b>div</b>&gt;
-&lt;/<b>header</b>&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;</pre>
+        <ul class="notes">
+          <li data-i18n-html="qs.p1"></li>
+          <li data-i18n-html="qs.p2"></li>
+          <li data-i18n-html="qs.p3"></li>
+        </ul>
+      </section>
 
-&lt;<b>link</b> rel="stylesheet" href="glass-navbar.css"&gt;
-&lt;<b>script</b> src="glass-navbar.js"&gt;&lt;/<b>script</b>&gt;</pre>
-    </div>
-  </section>
-
-  <section class="section" id="why">
-    <div class="wrap">
-      <h2>为什么用弹簧，而不是 CSS transition</h2>
-      <p class="sub">
-        <code>width</code>、<code>padding</code>、<code>height</code> 走 CSS 过渡是「匀速收束 + 固定时长」，
-        看着很机械 —— 你滚到一半往回滚，它会硬生生掉头。
-      </p>
-
-      <pre>a = (-k * (x - target) - c * v) / m;
+      <section class="docsec" id="why">
+        <h2 data-i18n="nav.why">原理</h2>
+        <p data-i18n-html="why.p1"></p>
+        <pre>a = (-k * (x - target) - c * v) / m;
 v += a * dt;
 x += v * dt;</pre>
+        <p data-i18n-html="why.p2"></p>
+        <ul class="notes">
+          <li data-i18n="why.li1"></li>
+          <li data-i18n="why.li2"></li>
+          <li data-i18n="why.li3"></li>
+          <li data-i18n="why.li4"></li>
+          <li data-i18n="why.li5"></li>
+        </ul>
+      </section>
 
-      <p class="sub" style="margin-top:22px">
-        弹簧会带着<strong>当前速度</strong>继续走，所以连续上下滚动时手感是连续的。
-        默认 <code>k = 180</code>、<code>c = 28</code>、<code>m = 1</code>；
-        临界阻尼是 <code>2√(k·m) = 2√180 ≈ 26.8</code>，取 28 刚好比它大一点：
-        <strong>不回弹，但收束是平滑的</strong>。
-      </p>
-      <p class="sub" style="margin-top:14px">
-        工程细节也处理了：单步时长夹在 1/30 秒内（切回标签页时不会积分炸掉）、
-        位移与速度都收敛就吸附到目标并停掉 rAF（不空转）、
-        窗口缩放时直接落值（不会看到一段无意义的收放动画）、
-        <code>prefers-reduced-motion</code> 下完全不做动画。
-      </p>
+      <section class="docsec" id="knobs">
+        <h2 data-i18n="nav.knobs">实时调节</h2>
+        <p data-i18n="knobs.p"></p>
+
+        <div class="knobs">
+          <div class="knob">
+            <div class="knob__top"><label for="k-inset">--gnav-inset</label><span class="knob__val">80px</span></div>
+            <input id="k-inset" type="range" min="0" max="200" step="2" value="80" data-var="--gnav-inset">
+            <p class="knob__note" data-i18n="knob.inset.n"></p>
+          </div>
+          <div class="knob">
+            <div class="knob__top"><label for="k-innerh">--gnav-inner-h-on</label><span class="knob__val">42px</span></div>
+            <input id="k-innerh" type="range" min="34" max="60" step="1" value="42" data-var="--gnav-inner-h-on">
+            <p class="knob__note" data-i18n="knob.innerh.n"></p>
+          </div>
+          <div class="knob">
+            <div class="knob__top"><label for="k-pady">--gnav-pad-y-on</label><span class="knob__val">2px</span></div>
+            <input id="k-pady" type="range" min="0" max="10" step="0.5" value="2" data-var="--gnav-pad-y-on">
+            <p class="knob__note" data-i18n="knob.pady.n"></p>
+          </div>
+          <div class="knob">
+            <div class="knob__top"><label for="k-blur">--gnav-blur</label><span class="knob__val">12px</span></div>
+            <input id="k-blur" type="range" min="0" max="30" step="1" value="12" data-var="--gnav-blur">
+            <p class="knob__note" data-i18n="knob.blur.n"></p>
+          </div>
+          <div class="knob">
+            <div class="knob__top"><label for="k-surface">--gnav-surface</label><span class="knob__val">0.45</span></div>
+            <input id="k-surface" type="range" min="0.05" max="0.95" step="0.05" value="0.45" data-var="--gnav-surface" data-unit="alpha">
+            <p class="knob__note" data-i18n="knob.surface.n"></p>
+          </div>
+        </div>
+
+        <pre class="snippet" id="knob-snippet"></pre>
+      </section>
+
+      <section class="docsec" id="params">
+        <h2 data-i18n="nav.params">参数</h2>
+        <p data-i18n-html="params.p"></p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th data-i18n="tbl.var">变量</th><th data-i18n="tbl.default">默认值</th><th data-i18n="tbl.desc">说明</th></tr></thead>
+            <tbody>
+              <tr><td>--gnav-inset</td><td>80px</td><td data-i18n="var.inset.d"></td></tr>
+              <tr><td>--gnav-inset-min</td><td>720</td><td data-i18n="var.insetmin.d"></td></tr>
+              <tr><td>--gnav-top / -on</td><td>8px / 5px</td><td data-i18n="var.top.d"></td></tr>
+              <tr><td>--gnav-pad-y / -on</td><td>4px / 2px</td><td data-i18n="var.pady.d"></td></tr>
+              <tr><td>--gnav-inner-h / -on</td><td>48px / 42px</td><td data-i18n="var.innerh.d"></td></tr>
+              <tr><td>--gnav-pad-l-on / -r-on</td><td>18px / 12px</td><td data-i18n="var.padlr.d"></td></tr>
+              <tr><td>--gnav-max-width</td><td>1280px</td><td data-i18n="var.maxw.d"></td></tr>
+              <tr><td>--gnav-side-gap</td><td>32px</td><td data-i18n="var.sidegap.d"></td></tr>
+              <tr><td>--gnav-radius</td><td>100px</td><td data-i18n="var.radius.d"></td></tr>
+              <tr><td>--gnav-blur</td><td>12px</td><td data-i18n="var.blur.d"></td></tr>
+              <tr><td>--gnav-saturate</td><td>170%</td><td data-i18n="var.saturate.d"></td></tr>
+              <tr><td>--gnav-surface</td><td>hsla(0,0%,100%,.45)</td><td data-i18n="var.surface.d"></td></tr>
+              <tr><td>--gnav-border</td><td>rgba(0,0,0,.1)</td><td data-i18n="var.border.d"></td></tr>
+              <tr><td>--gnav-shadow</td><td>0 2px 12px rgba(21,36,67,.07)</td><td data-i18n="var.shadow.d"></td></tr>
+              <tr><td>--gnav-glass-duration</td><td>.3s</td><td data-i18n="var.glassdur.d"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p data-i18n-html="params.data.p"></p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th data-i18n="tbl.var">属性</th><th data-i18n="tbl.default">默认值</th><th data-i18n="tbl.desc">说明</th></tr></thead>
+            <tbody>
+              <tr><td>data-gnav-threshold</td><td>80</td><td data-i18n="var.threshold.d"></td></tr>
+              <tr><td>data-gnav-stiffness</td><td>180</td><td data-i18n="var.stiffness.d"></td></tr>
+              <tr><td>data-gnav-damping</td><td>28</td><td data-i18n="var.damping.d"></td></tr>
+              <tr><td>data-gnav-mass</td><td>1</td><td data-i18n="var.mass.d"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="docsec" id="api">
+        <h2>API</h2>
+        <p data-i18n-html="api.p"></p>
+        <pre>new GlassNavbar('#gnav', { threshold: 120, stiffness: 220, damping: 30 });
+
+nav.update();    // recompute targets and start the spring
+nav.settle();    // apply the current state without animating
+nav.destroy();   // remove instance, inline styles and listeners
+
+GlassNavbar.initAll();
+GlassNavbar.instances;</pre>
+      </section>
+
+      <section class="docsec" id="compat">
+        <h2 data-i18n="nav.compat">兼容性</h2>
+        <p data-i18n-html="compat.p"></p>
+      </section>
     </div>
-  </section>
-
-  <section class="section section--soft" id="api">
-    <div class="wrap">
-      <h2>参数表</h2>
-      <p class="sub">全部在 <code>glass-navbar.css</code> 里以 CSS 变量定义，在 <code>.gnav</code> 上覆盖即可。</p>
-
-      <div class="table-scroll">
-        <table class="table">
-          <thead><tr><th>变量</th><th>默认值</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td>--gnav-inset</td><td>80px</td><td>滚动后左右各内缩多少。容器窄于 <code>--gnav-inset-min</code> 时自动不内缩。</td></tr>
-            <tr><td>--gnav-inset-min</td><td>720</td><td>内缩的最小容器宽度（无单位数字）。</td></tr>
-            <tr><td>--gnav-top / -on</td><td>8px / 5px</td><td>容器顶部留白，未滚动 / 滚动后。</td></tr>
-            <tr><td>--gnav-pad-y / -on</td><td>4px / 2px</td><td>胶囊纵向内边距。</td></tr>
-            <tr><td>--gnav-inner-h / -on</td><td>48px / 42px</td><td>胶囊内容高度。</td></tr>
-            <tr><td>--gnav-pad-l-on / -r-on</td><td>18px / 12px</td><td>滚动后内容左右内缩，避免贴到圆角。</td></tr>
-            <tr><td>--gnav-max-width</td><td>1280px</td><td>容器最大宽度。</td></tr>
-            <tr><td>--gnav-side-gap</td><td>32px</td><td>容器距视口左右边缘的留白。</td></tr>
-            <tr><td>--gnav-radius</td><td>100px</td><td>胶囊圆角。</td></tr>
-            <tr><td>--gnav-blur</td><td>12px</td><td>磨砂玻璃模糊半径。</td></tr>
-            <tr><td>--gnav-saturate</td><td>170%</td><td>磨砂玻璃饱和度增强。</td></tr>
-            <tr><td>--gnav-surface</td><td>hsla(0,0%,100%,.45)</td><td>玻璃底色。</td></tr>
-            <tr><td>--gnav-border</td><td>rgba(0,0,0,.1)</td><td>玻璃描边。</td></tr>
-            <tr><td>--gnav-shadow</td><td>0 2px 12px rgba(21,36,67,.07)</td><td>胶囊投影。</td></tr>
-            <tr><td>--gnav-glass-duration</td><td>.3s</td><td>玻璃淡入时长（外观走 CSS 过渡，尺寸走弹簧）。</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p class="sub" style="margin-top:34px">物理参数用 data 属性覆盖：</p>
-      <div class="table-scroll">
-        <table class="table">
-          <thead><tr><th>属性</th><th>默认值</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td>data-gnav-threshold</td><td>80</td><td>触发收窄的滚动距离（px）。</td></tr>
-            <tr><td>data-gnav-stiffness</td><td>180</td><td>弹簧劲度系数 k，越大越快。</td></tr>
-            <tr><td>data-gnav-damping</td><td>28</td><td>阻尼系数 c，越小越容易回弹。</td></tr>
-            <tr><td>data-gnav-mass</td><td>1</td><td>质量 m。</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p class="sub" style="margin-top:34px">也可以手动实例化：</p>
-      <pre>const nav = new <b>GlassNavbar</b>('#gnav', { threshold: 120, stiffness: 220, damping: 30 });
-nav.settle();    // 不做动画，直接落到当前状态
-nav.destroy();   // 移除实例并清掉内联样式</pre>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <h2>兼容性与无障碍</h2>
-      <p class="sub">
-        Chrome / Edge 88+、Safari 15.4+、Firefox 103+。
-        <code>backdrop-filter</code> 不支持时自动退化为纯色背景（<code>@supports</code> 兜底），
-        功能不受影响。深色模式跟随系统，也可以用手动指定
-        <code>[data-theme="dark"]</code> 或 <code>.gnav--dark</code> / <code>.gnav--light</code>。
-        开启「减弱动态效果」后尺寸变化不再有动画，直接落值。
-      </p>
-    </div>
-  </section>
+  </div>
 </main>
 
 <footer class="foot">
   <div class="wrap">
-    <p>glass-navbar · MIT License · 零依赖纯前端组件</p>
-    <p style="margin-top:8px">
-      名称中的 "deepseek-style" 仅表示设计参照来源，本项目与 DeepSeek 无任何关联、未获其授权，
-      不含其任何代码、素材或商标。
-    </p>
+    <div class="foot__row">
+      <p data-i18n="foot.license">MIT 许可 · 零依赖纯前端组件</p>
+      <p><a href="https://github.com/ningqi24/deepseek-style-floating-navbar" target="_blank" rel="noopener">GitHub</a></p>
+    </div>
+    <p class="foot__note" data-i18n="foot.disclaimer"></p>
   </div>
 </footer>
 
 <script src="glass-navbar.js"></script>
+<script src="demo-i18n.js"></script>
 <script src="demo.js"></script>
 </body>
 </html>

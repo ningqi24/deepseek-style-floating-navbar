@@ -15,6 +15,7 @@
 
 ![滚动前：贴边、全宽、完全透明](assets/demo-light.png)
 ![滚动后：横向内缩、纵向变薄、磨砂玻璃淡入](assets/demo-scrolled.png)
+![深色模式与英文界面](assets/demo-dark.png)
 
 ---
 
@@ -83,6 +84,9 @@
 ```
 
 演示页上有**实时调节面板**，拖滑块就能看到效果并直接拷走对应的 CSS。
+演示页支持中英双语与明暗主题（跟随系统，也可手动切），都可以在页头直接切。
+
+组件本体不含任何文案，多语言只影响演示页。
 
 ---
 
@@ -197,25 +201,31 @@ GlassNavbar.instances;  // 所有存活实例
 
 ---
 
-## 本地预览
+## 本地预览与自检
 
 ```bash
 npm run serve     # http://127.0.0.1:4174/
+npm run check     # 校验中英词条对齐、页面引用的 key 存在、本地资源存在、JS 语法
 ```
 
-组件本身不依赖 Node，这个脚本只是方便本地看效果。
+组件本身不依赖 Node，这两个脚本只服务于演示页。
 
 ---
 
 ## 文件
 
 ```
-glass-navbar.css   组件样式（唯一需要引入的 CSS）
-glass-navbar.js    组件逻辑（唯一需要引入的 JS）
-index.html         演示页
-demo.css / demo.js 演示页专用，删掉不影响组件
-serve.mjs          本地预览服务器
+glass-navbar.css     组件样式（唯一需要引入的 CSS）
+glass-navbar.js      组件逻辑（唯一需要引入的 JS）
+index.html           演示 / 文档页
+demo.css             演示页样式
+demo.js              演示页交互（语言、明暗、菜单、实时调节、复制）
+demo-i18n.js         演示页的中英文案
+check.mjs            自检脚本
+serve.mjs            本地预览服务器
 ```
+
+除前两个文件外，其余都只服务于演示页，删掉不影响组件。
 
 ---
 

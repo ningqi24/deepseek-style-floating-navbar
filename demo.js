@@ -1,76 +1,136 @@
-/* demo.js —— 仅演示页使用：明暗切换 / 移动端菜单 / 实时调节旋钮 */
+/* demo.js —— 仅演示页使用：语言 / 明暗 / 菜单 / 实时调节 / 复制 / 侧栏高亮 */
 (function () {
   'use strict';
   var $ = function (s) { return document.querySelector(s); };
-  var nav = $('#gnav');
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var gnav = $('#gnav');
+  var root = document.documentElement;
 
-  /* 明暗切换：切换 data-theme，组件会跟着换玻璃配色 */
-  var themeBtn = $('#theme-toggle');
-  var saved = null;
-  try { saved = localStorage.getItem('gnav-demo-theme'); } catch (e) {}
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    if (themeBtn) themeBtn.textContent = t === 'dark' ? '浅色' : '深色';
-    try { localStorage.setItem('gnav-demo-theme', t); } catch (e) {}
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+
+  /* --------------------------------------------------------------- 语言 */
+  function setLang(lang) {
+    var l = lang === 'en' ? 'en' : 'zh';
+    root.setAttribute('data-lang', l);
+    store('gnav-demo-lang', l);
+    if (typeof window.gnavApplyLang === 'function') window.gnavApplyLang(l);
+    $$('.lang button').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-lang') === l); });
   }
-  applyTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  $$('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
+  });
+  setLang(root.getAttribute('data-lang') || 'zh');
+
+  /* --------------------------------------------------------------- 明暗 */
+  var themeBtn = $('#theme-toggle');
+  function applyTheme(t) {
+    root.setAttribute('data-theme', t);
+    store('gnav-demo-theme', t);
+  }
   if (themeBtn) {
     themeBtn.addEventListener('click', function () {
-      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
   }
-
-  /* 移动端菜单 */
-  var burger = $('#burger');
-  var menu = $('#demo-nav');
-  if (burger && menu) {
-    burger.addEventListener('click', function () {
-      var open = menu.classList.toggle('is-open');
-      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    menu.addEventListener('click', function (e) {
-      if (e.target.tagName === 'A') menu.classList.remove('is-open');
-    });
-  }
-
-  /* 实时调节：把滑块值写回 .gnav 上的 CSS 变量 */
-  var knobs = document.querySelectorAll('[data-var]');
-  Array.prototype.forEach.call(knobs, function (input) {
-    var name = input.getAttribute('data-var');
-    var unit = input.getAttribute('data-unit') || 'px';
-    var out = input.parentNode.querySelector('.ctl__val');
-    var scale = parseFloat(input.getAttribute('data-scale') || '1');
-
-    function sync() {
-      var v = parseFloat(input.value) * scale;
-      var text = unit === 'alpha' ? v.toFixed(2) : Math.round(v) + unit;
-      if (out) out.textContent = text;
-      if (unit === 'alpha') nav.style.setProperty(name, 'hsla(0,0%,100%,' + v + ')');
-      else nav.style.setProperty(name, v + unit);
-      // 参数改了要重新读取令牌：把实例的缓存清掉再 update
-      var inst = window.GlassNavbar && window.GlassNavbar.instances[0];
-      if (inst) { inst._tokens = null; inst.update(); inst.settle(); }
-    }
-    input.addEventListener('input', sync);
-    sync();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+    if (!store('gnav-demo-theme')) applyTheme(e.matches ? 'dark' : 'light');
   });
 
-  /* 复制的代码片段跟着当前参数走 */
-  var codeBox = $('#snippet');
-  function renderSnippet() {
-    if (!codeBox) return;
-    var vals = {};
-    Array.prototype.forEach.call(knobs, function (i) {
-      vals[i.getAttribute('data-var')] = parseFloat(i.value) * parseFloat(i.getAttribute('data-scale') || '1');
+  /* --------------------------------------------------------------- 菜单 */
+  var burger = $('#burger');
+  var topnav = $('#topnav');
+  if (burger && topnav) {
+    burger.addEventListener('click', function () {
+      var open = topnav.classList.toggle('is-open');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-    codeBox.innerHTML = '.gnav {\n' +
-      '  <b>--gnav-inset</b>: ' + Math.round(vals['--gnav-inset']) + 'px;\n' +
-      '  <b>--gnav-inner-h-on</b>: ' + Math.round(vals['--gnav-inner-h-on'] || vals['--gnav-inner-h']) + 'px;\n' +
-      '  <b>--gnav-pad-y-on</b>: ' + (vals['--gnav-pad-y-on'] || 2) + 'px;\n' +
-      '  <b>--gnav-blur</b>: ' + Math.round(vals['--gnav-blur']) + 'px;\n' +
-      '  <b>--gnav-surface</b>: hsla(0, 0%, 100%, ' + (vals['--gnav-surface'] || .45).toFixed(2) + ');\n' +
-      '}';
+    topnav.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') { topnav.classList.remove('is-open'); burger.setAttribute('aria-expanded', 'false'); }
+    });
   }
-  Array.prototype.forEach.call(knobs, function (i) { i.addEventListener('input', renderSnippet); });
+
+  /* ----------------------------------------------------------- 实时调节 */
+  var knobs = $$('[data-var]');
+  var snippet = $('#knob-snippet');
+
+  function knobValue(input) {
+    return parseFloat(input.value) * parseFloat(input.getAttribute('data-scale') || '1');
+  }
+
+  function renderSnippet() {
+    if (!snippet) return;
+    var get = function (name, fallback) {
+      for (var i = 0; i < knobs.length; i++) if (knobs[i].getAttribute('data-var') === name) return knobValue(knobs[i]);
+      return fallback;
+    };
+    var lines = [
+      '.gnav {',
+      '  --gnav-inset: ' + Math.round(get('--gnav-inset', 80)) + 'px;',
+      '  --gnav-inner-h-on: ' + Math.round(get('--gnav-inner-h-on', 42)) + 'px;',
+      '  --gnav-pad-y-on: ' + get('--gnav-pad-y-on', 2) + 'px;',
+      '  --gnav-blur: ' + Math.round(get('--gnav-blur', 12)) + 'px;',
+      '  --gnav-surface: hsla(0, 0%, 100%, ' + get('--gnav-surface', 0.45).toFixed(2) + ');',
+      '}',
+    ];
+    snippet.textContent = lines.join('\n');
+  }
+
+  knobs.forEach(function (input) {
+    var name = input.getAttribute('data-var');
+    var unit = input.getAttribute('data-unit') || 'px';
+    var out = input.parentNode.querySelector('.knob__val');
+    var inst = null;
+
+    function sync() {
+      var v = knobValue(input);
+      if (out) out.textContent = unit === 'alpha' ? v.toFixed(2) : Math.round(v) + unit;
+      if (unit === 'alpha') gnav.style.setProperty(name, 'hsla(0, 0%, 100%, ' + v + ')');
+      else gnav.style.setProperty(name, v + unit);
+      // 组件把令牌缓存在实例里，改动后要让它重读一次
+      inst = inst || (window.GlassNavbar && window.GlassNavbar.instances[0]);
+      if (inst) { inst._tokens = null; inst.update(); inst.settle(); }
+    }
+    input.addEventListener('input', function () { sync(); renderSnippet(); });
+    sync();
+  });
   renderSnippet();
+
+  /* --------------------------------------------------------------- 复制 */
+  var copyBtn = $('#copy-install');
+  var installEl = $('#install-snippet');
+  if (copyBtn && installEl) {
+    copyBtn.addEventListener('click', function () {
+      var text = installEl.textContent;
+      var label = copyBtn.querySelector('span') || copyBtn;
+      var done = function () {
+        var prev = label.textContent;
+        label.textContent = (window.GNAV_I18N && GNAV_I18N[root.getAttribute('data-lang') || 'zh'] || {})['hero.copied'] || '已复制';
+        setTimeout(function () { label.textContent = prev; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); done();
+      }
+    });
+  }
+
+  /* ----------------------------------------------------------- 侧栏高亮 */
+  var sideLinks = $$('.doc__side a[href^="#"]');
+  var sections = sideLinks.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        sideLinks.forEach(function (a) {
+          a.classList.toggle('is-active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      });
+    }, { rootMargin: '-100px 0px -65% 0px' });
+    sections.forEach(function (s) { io.observe(s); });
+  }
 })();
