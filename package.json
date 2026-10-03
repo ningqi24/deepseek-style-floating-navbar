@@ -1,0 +1,24 @@
+{
+  "name": "glass-navbar",
+  "version": "1.0.0",
+  "description": "零依赖的悬浮玻璃胶囊导航栏：滚动时横向内缩、纵向变薄，磨砂玻璃淡入，尺寸变化由弹簧积分驱动。",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.mjs"
+  },
+  "keywords": [
+    "navbar",
+    "navigation-bar",
+    "glassmorphism",
+    "backdrop-filter",
+    "sticky-header",
+    "scroll-animation",
+    "spring-animation",
+    "vanilla-js",
+    "zero-dependency",
+    "css-variables"
+  ],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}

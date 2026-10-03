@@ -1,0 +1,136 @@
+/* ==========================================================================
+   glass-navbar.css —— 悬浮玻璃胶囊导航栏（滚动时弹簧收窄 / 变薄）
+   零依赖。所有设计数值都是 CSS 变量，用法见 README。
+
+   标记结构（必需，类名固定）：
+     <header class="gnav" id="gnav">
+       <div class="gnav__bar">
+         <div class="gnav__inner"> ... 你的内容 ... </div>
+       </div>
+     </header>
+
+   只作用于 .gnav 子树，不会污染宿主页面的其它样式。
+   ========================================================================== */
+
+.gnav {
+  /* ---------- 尺寸：未滚动 → 滚动后 ---------- */
+  --gnav-top: 8px;            /* 容器顶部留白 */
+  --gnav-top-on: 5px;
+  --gnav-pad-y: 4px;          /* 胶囊纵向内边距 */
+  --gnav-pad-y-on: 2px;
+  --gnav-inner-h: 48px;       /* 胶囊内容高度 */
+  --gnav-inner-h-on: 42px;
+  --gnav-inset: 80px;         /* 滚动后左右各内缩多少（相对容器，不是绝对宽度） */
+  --gnav-inset-min: 720;      /* 容器窄于此值就不内缩（无单位数字） */
+  --gnav-pad-l-on: 18px;      /* 滚动后内容左右内缩 */
+  --gnav-pad-r-on: 12px;
+
+  /* ---------- 外观 ---------- */
+  --gnav-max-width: 1280px;
+  --gnav-side-gap: 32px;      /* 容器距视口左右边缘的留白 */
+  --gnav-radius: 100px;
+  --gnav-blur: 12px;
+  --gnav-saturate: 170%;
+  --gnav-surface: hsla(0, 0%, 100%, .45);
+  --gnav-border: rgba(0, 0, 0, .1);
+  --gnav-shadow: 0 2px 12px rgba(21, 36, 67, .07);
+  --gnav-ease: cubic-bezier(.22, .61, .36, 1);
+  --gnav-glass-duration: .3s;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: min(100% - var(--gnav-side-gap), var(--gnav-max-width));
+  margin: 0 auto;
+  padding: var(--gnav-top) 0 0;
+  /* 关键：容器本身不吃点击，只有胶囊吃，免得挡住底下的内容 */
+  pointer-events: none;
+}
+
+.gnav *,
+.gnav *::before,
+.gnav *::after { box-sizing: border-box; }
+
+.gnav__bar {
+  max-width: var(--gnav-max-width);
+  margin: 0 auto;
+  padding: var(--gnav-pad-y) 0;
+  border: 1px solid transparent;
+  border-radius: var(--gnav-radius);
+  background: transparent;
+  pointer-events: auto;
+  /* 只过渡"外观"；宽度/内边距/高度由 JS 用弹簧积分驱动 */
+  transition:
+    background-color var(--gnav-glass-duration) var(--gnav-ease),
+    border-color var(--gnav-glass-duration) var(--gnav-ease),
+    box-shadow var(--gnav-glass-duration) var(--gnav-ease);
+}
+
+/* 滚过阈值后：磨砂玻璃浮起来 */
+.gnav.is-scrolled .gnav__bar {
+  background: var(--gnav-surface);
+  border-color: var(--gnav-border);
+  box-shadow: var(--gnav-shadow);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gnav.is-scrolled .gnav__bar {
+    backdrop-filter: blur(var(--gnav-blur)) saturate(var(--gnav-saturate));
+    -webkit-backdrop-filter: blur(var(--gnav-blur)) saturate(var(--gnav-saturate));
+  }
+}
+
+.gnav__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--gnav-inner-h);
+}
+
+/* ---------- 深色：跟随系统，或用 [data-theme="dark"] 显式指定 ---------- */
+@media (prefers-color-scheme: dark) {
+  .gnav {
+    --gnav-surface: rgba(255, 255, 255, .09);
+    --gnav-border: rgba(255, 255, 255, .14);
+    --gnav-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+  }
+}
+
+[data-theme="dark"] .gnav,
+.gnav--dark {
+  --gnav-surface: rgba(255, 255, 255, .09);
+  --gnav-border: rgba(255, 255, 255, .14);
+  --gnav-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+
+/* 强制浅色（覆盖系统深色） */
+[data-theme="light"] .gnav,
+.gnav--light {
+  --gnav-surface: hsla(0, 0%, 100%, .45);
+  --gnav-border: rgba(0, 0, 0, .1);
+  --gnav-shadow: 0 2px 12px rgba(21, 36, 67, .07);
+}
+
+/* ---------- 窄屏：不内缩，胶囊变薄 ---------- */
+@media (max-width: 760px) {
+  .gnav {
+    --gnav-top: 6px;
+    --gnav-top-on: 4px;
+    --gnav-inner-h: 44px;
+    --gnav-inner-h-on: 40px;
+    --gnav-inset: 0px;
+    --gnav-side-gap: 24px;
+  }
+}
+
+/* ---------- 无障碍 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .gnav__bar { transition-duration: .01ms; }
+}
+
+/* JS 未加载时的兜底：至少保证贴边时不至于完全错位 */
+@media print {
+  .gnav { display: none !important; }
+}
