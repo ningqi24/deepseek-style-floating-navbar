@@ -1,8 +1,8 @@
-# 悬浮玻璃胶囊导航栏 · glass-navbar
+# Deepseek同款 悬浮玻璃胶囊导航栏 · glass-navbar
 
 > 滚动时**横向内缩 + 纵向变薄**，磨砂玻璃淡入浮起来的顶栏效果。
 > 两个文件，零依赖，无构建步骤。
-
+> 相关文章：https://juejin.cn/post/7702737817417089039?share_token=ce610756-597d-438d-8f5e-5206d34e0ed5
 <p>
   <img alt="零依赖" src="https://img.shields.io/badge/dependencies-0-4d6bfe">
   <img alt="无需构建" src="https://img.shields.io/badge/build-none-4d6bfe">
